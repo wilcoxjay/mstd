@@ -123,21 +123,7 @@ int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
     }
   }
 
-  int result = bitset_count(sum, 4*N) > bitset_count(diff, 4*N);
-
-  if (result) {
-#pragma omp critical
-    {
-    print_set2d(s, rows, cols);
-    printf(" %d\n", bitset_count(s, N));
-    print_set2d(sum, 2*rows, 2*cols);
-    printf(" %d\n", bitset_count(sum, 4*N));
-    print_set2d(diff, 2*rows, 2*cols);
-    printf(" %d\n\n\n\n\n", bitset_count(diff, 4*N));
-    }
-  }
-
-  return result;
+  return bitset_count(sum, 4*N) > bitset_count(diff, 4*N);
 }
 
 
@@ -161,15 +147,26 @@ int main(int argc, char** argv) {
 #pragma omp master
     printf("running on %d threads\n", omp_get_num_threads());
     long long scratch[4];
+    char* sum = (char*)scratch;
+    char* diff = (char*)(scratch+2);
     long long i;
 #pragma omp for schedule(dynamic,1)
     for (i = 0; i < max; i++) {
       memset(scratch, 0, 4*sizeof(long long));
     
       char* s = (char*) &i;
-      if (is_mstd2d(s, R, C, (char*)scratch, (char*)(scratch+2))) {
+      if (is_mstd2d(s, R, C, sum, diff)) {
 #pragma omp critical
-	printf("**seed: %lld\n\n\n", i);
+	{
+	  print_set2d(s, R, C);
+	  printf(" %d\n", bitset_count(s, N));
+	  print_set2d(sum, 2*R, 2*C);
+	  printf(" %d\n", bitset_count(sum, 4*N));
+	  print_set2d(diff, 2*R, 2*C);
+	  printf(" %d\n\n", bitset_count(diff, 4*N));
+	  printf("**seed: %lld\n\n\n\n\n", i);
+	}
+
 	//print_set2d(s, R, C); printf("\n");
       }
 
