@@ -168,6 +168,7 @@ int main(int argc, char** argv) {
     
       char* s = (char*) &i;
       if (is_mstd2d(s, R, C, (char*)scratch, (char*)(scratch+2))) {
+#pragma omp critical
 	printf("**seed: %lld\n\n\n", i);
 	//print_set2d(s, R, C); printf("\n");
       }
