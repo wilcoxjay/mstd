@@ -3,7 +3,6 @@
 #include <string.h>
 
 int bitset_get(char* s, int i) {
-  //printf("(*** accessing index %d ***)\n", i);
   return (s[i / 8] >> (i % 8)) & 1;
 }
 
@@ -92,13 +91,6 @@ void print_set2d(char* s, int rows, int cols) {
 
 int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
   int N = rows * cols;
-  // printf("r = %d, c = %d, N = %d\n", rows, cols, N);
-  // print_set2d(s, rows, cols);
-  // printf(" %d\n", bitset_count(s, N));
-  // print_set2d(sum, 2*rows, 2*cols);
-  // printf(" %d\n", bitset_count(sum, 2*N));
-  // print_set2d(diff, 2*rows, 2*cols);
-  // printf(" %d\n\n", bitset_count(diff, 2*N));
 
   int i, j;
   for (i = 0; i < N; i++) {
@@ -127,7 +119,6 @@ int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
 }
 
 
-
 #include <omp.h>
 int main(int argc, char** argv) {
   if (argc < 3) {
@@ -151,7 +142,7 @@ int main(int argc, char** argv) {
     char* sum = (char*)scratch;
     char* diff = (char*)(scratch+2);
     long long i;
-#pragma omp for schedule(dynamic,1)
+#pragma omp for schedule(guided)
     for (i = 0; i < max; i++) {
       memset(scratch, 0, 4*sizeof(long long));
     
@@ -167,10 +158,7 @@ int main(int argc, char** argv) {
 	  printf(" %d\n\n", bitset_count(diff, 4*N));
 	  printf("**tid %d, seed: %lld\n\n\n\n\n", tid, i);
 	}
-
-	//print_set2d(s, R, C); printf("\n");
       }
-
     }
   }
   return 0;
