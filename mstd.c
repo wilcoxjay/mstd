@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
-int bitset_get(char* s, int i) {
+int bitset_get(char* s, int i, int n) {
+  assert(0 <= i && i < n);
   return (s[i / 8] >> (i % 8)) & 1;
 }
 
-void bitset_set(char *s, int i) {
+void bitset_set(char *s, int i, int n) {
+  assert(0 <= i && i < n);
   s[i / 8] |= 1 << (i % 8);
-}
-
-void bitset_clear(char* s, int i) {
-  s[i / 8] &= ~(1 << (i % 8));
 }
 
 void print_set(char* s, int n) {
@@ -19,7 +18,7 @@ void print_set(char* s, int n) {
   int i;
   int started = 0;
   for (i = 0; i < n; i++) {
-    if (bitset_get(s, i)) {
+    if (bitset_get(s, i, n)) {
       if (started) {
 	printf(", ");
       }
@@ -34,7 +33,7 @@ int bitset_count(char* s, int N) {
   int count = 0;
   int i;
   for (i = 0; i < N; i++) {
-    if (bitset_get(s, i)) {
+    if (bitset_get(s, i, N)) {
       count++;
     }
   }
@@ -45,13 +44,13 @@ int bitset_count(char* s, int N) {
 int is_mstd(char* s, int N, char* sum, char* diff) {
   int i, j;
   for (i = 0; i < N; i++) {
-    if (!bitset_get(s, i)) continue;
+    if (!bitset_get(s, i, N)) continue;
     for (j = i; j < N; j++) {
-      if (!bitset_get(s, j)) continue;
-      bitset_set(sum, i+j);
+      if (!bitset_get(s, j, N)) continue;
+      bitset_set(sum, i+j, 2*N);
       int d = i - j;
-      bitset_set(diff, d + N);
-      bitset_set(diff, N - d);
+      bitset_set(diff, d + N, 2*N);
+      bitset_set(diff, N - d, 2*N);
     }
   }
 
@@ -76,7 +75,7 @@ void print_set2d(char* s, int rows, int cols) {
   printf("{");
   int i;
   for (i = 0; i < N; i++) {
-    if (!bitset_get(s, i)) continue;
+    if (!bitset_get(s, i, N)) continue;
     int ir = i / cols;
     int ic = i % cols;
 
@@ -94,11 +93,11 @@ int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
 
   int i, j;
   for (i = 0; i < N; i++) {
-    if (!bitset_get(s, i)) continue;
+    if (!bitset_get(s, i, N)) continue;
     int ir = i / cols;
     int ic = i % cols;
     for (j = i; j < N; j++) {
-      if (!bitset_get(s, j)) continue;
+      if (!bitset_get(s, j, N)) continue;
       int jr = j / cols;
       int jc = j % cols;
 
@@ -109,9 +108,9 @@ int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
       int rd2 = jr - ir + rows;
       int cd2 = jc - ic + cols;
 
-      bitset_set(sum, rs * 2 * cols + cs);
-      bitset_set(diff, rd1 * 2 * cols + cd1);
-      bitset_set(diff, rd2 * 2 * cols + cd2);
+      bitset_set(sum, rs * 2 * cols + cs, 4*N);
+      bitset_set(diff, rd1 * 2 * cols + cd1, 4*N);
+      bitset_set(diff, rd2 * 2 * cols + cd2, 4*N);
     }
   }
 
@@ -119,8 +118,37 @@ int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
 }
 
 
-#include <omp.h>
+void check(long long x, int R, int C) {
+  long long scratch[8];
+  memset(scratch, 0, 8*sizeof(long long));
+
+  char* sum = (char*)scratch;
+  char* diff = (char*)(scratch+4);
+
+  char* s = (char*)&x;
+  long long N = R * C;
+
+  printf("N = %lld\n", N);
+
+  print_set2d(s, R, C);
+  printf(" %d\n", bitset_count(s, N));
+  print_set2d(sum, 2*R, 2*C);
+  printf(" %d\n", bitset_count(sum, 4*N));
+  print_set2d(diff, 2*R, 2*C);
+  printf(" %d\n\n", bitset_count(diff, 4*N));
+
+  is_mstd2d(s, R, C, sum, diff);
+
+  print_set2d(s, R, C);
+  printf(" %d\n", bitset_count(s, N));
+  print_set2d(sum, 2*R, 2*C);
+  printf(" %d\n", bitset_count(sum, 4*N));
+  print_set2d(diff, 2*R, 2*C);
+  printf(" %d\n\n\n\n", bitset_count(diff, 4*N));
+}
+
 int main(int argc, char** argv) {
+
   if (argc < 3) {
     printf("need R and C on the command line.\n");
     return 1;
@@ -133,32 +161,27 @@ int main(int argc, char** argv) {
     return 1;
   }
   long long max = 1LL << N;
-#pragma omp parallel
-  {
-    int tid = omp_get_thread_num();
-#pragma omp master
-    printf("running on %d threads\n", omp_get_num_threads());
-    long long scratch[4];
-    char* sum = (char*)scratch;
-    char* diff = (char*)(scratch+2);
-    long long i;
-#pragma omp for schedule(guided)
-    for (i = 0; i < max; i++) {
-      memset(scratch, 0, 4*sizeof(long long));
+  long long scratch[8];
+  char* sum = (char*)scratch;
+  char* diff = (char*)(scratch+4);
+  long long i;
+
+  //check(2964602, 6, 6);
+  //exit(0);
+  
+
+  for (i = 0; i < max; i++) {
+    memset(scratch, 0, 8*sizeof(long long));
     
-      char* s = (char*) &i;
-      if (is_mstd2d(s, R, C, sum, diff)) {
-#pragma omp critical
-	{
-	  print_set2d(s, R, C);
-	  printf(" %d\n", bitset_count(s, N));
-	  print_set2d(sum, 2*R, 2*C);
-	  printf(" %d\n", bitset_count(sum, 4*N));
-	  print_set2d(diff, 2*R, 2*C);
-	  printf(" %d\n\n", bitset_count(diff, 4*N));
-	  printf("**tid %d, seed: %lld\n\n\n\n\n", tid, i);
-	}
-      }
+    char* s = (char*) &i;
+    if (is_mstd2d(s, R, C, sum, diff)) {
+      print_set2d(s, R, C);
+      printf(" %d\n", bitset_count(s, N));
+      print_set2d(sum, 2*R, 2*C);
+      printf(" %d\n", bitset_count(sum, 4*N));
+      print_set2d(diff, 2*R, 2*C);
+      printf(" %d\n\n", bitset_count(diff, 4*N));
+      printf("**seed: %lld\n\n\n\n\n", i);
     }
   }
   return 0;
