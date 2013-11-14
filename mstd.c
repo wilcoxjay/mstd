@@ -3,6 +3,8 @@
 #include <string.h>
 #include <assert.h>
 
+#include <omp.h>
+
 int bitset_get(char* s, int i, int n) {
   assert(0 <= i && i < n);
   return (s[i / 8] >> (i % 8)) & 1;
@@ -90,7 +92,7 @@ void print_set2d(char* s, int rows, int cols) {
 
 int is_mstd2d(char* s, int rows, int cols, char* sum, char* diff) {
   int N = rows * cols;
-
+  
   int i, j;
   for (i = 0; i < N; i++) {
     if (!bitset_get(s, i, N)) continue;
@@ -148,7 +150,6 @@ void check(long long x, int R, int C) {
 }
 
 int main(int argc, char** argv) {
-
   if (argc < 3) {
     printf("need R and C on the command line.\n");
     return 1;
@@ -159,30 +160,36 @@ int main(int argc, char** argv) {
   if (N > 63) {
     printf("N must be no more than 63. (got %d)\n", N);
     return 1;
-  }
+}
   long long max = 1LL << N;
-  long long scratch[8];
-  char* sum = (char*)scratch;
-  char* diff = (char*)(scratch+4);
-  long long i;
+#pragma omp parallel
+  {
+    int tid = omp_get_thread_num();
 
-  //check(2964602, 6, 6);
-  //exit(0);
-  
+    long long scratch[8];
+    char* sum = (char*)scratch;
+    char* diff = (char*)(scratch+4);
+    long long i;
 
-  for (i = 0; i < max; i++) {
-    memset(scratch, 0, 8*sizeof(long long));
+#pragma omp for schedule(guided)
+    for (i = 0; i < max; i++) {
+      memset(scratch, 0, 8*sizeof(long long));
     
-    char* s = (char*) &i;
-    if (is_mstd2d(s, R, C, sum, diff)) {
-      print_set2d(s, R, C);
-      printf(" %d\n", bitset_count(s, N));
-      print_set2d(sum, 2*R, 2*C);
-      printf(" %d\n", bitset_count(sum, 4*N));
-      print_set2d(diff, 2*R, 2*C);
-      printf(" %d\n\n", bitset_count(diff, 4*N));
-      printf("**seed: %lld\n\n\n\n\n", i);
+      char* s = (char*) &i;
+      if (is_mstd2d(s, R, C, sum, diff)) {
+#pragma omp critical
+	{
+	  print_set2d(s, R, C);
+	  printf(" %d\n", bitset_count(s, N));
+	  print_set2d(sum, 2*R, 2*C);
+	  printf(" %d\n", bitset_count(sum, 4*N));
+	  print_set2d(diff, 2*R, 2*C);
+	  printf(" %d\n\n", bitset_count(diff, 4*N));
+	  printf("**tid %d, seed: %lld\n\n\n\n\n", tid, i);
+	}
+      }
     }
   }
+
   return 0;
 }
