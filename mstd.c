@@ -144,6 +144,7 @@ int main(int argc, char** argv) {
   long long max = 1LL << N;
 #pragma omp parallel
   {
+    int tid = omp_get_thread_num();
 #pragma omp master
     printf("running on %d threads\n", omp_get_num_threads());
     long long scratch[4];
@@ -164,7 +165,7 @@ int main(int argc, char** argv) {
 	  printf(" %d\n", bitset_count(sum, 4*N));
 	  print_set2d(diff, 2*R, 2*C);
 	  printf(" %d\n\n", bitset_count(diff, 4*N));
-	  printf("**seed: %lld\n\n\n\n\n", i);
+	  printf("**tid %d, seed: %lld\n\n\n\n\n", tid, i);
 	}
 
 	//print_set2d(s, R, C); printf("\n");
