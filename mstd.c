@@ -166,12 +166,13 @@ int main(int argc, char** argv) {
     for (i = 0; i < max; i++) {
       memset(scratch, 0, 4*sizeof(long long));
     
-    char* s = (char*) &i;
-    if (is_mstd2d(s, R, C, (char*)scratch, (char*)(scratch+2))) {
-      printf("**seed: %lld\n\n\n", i);
-      //print_set2d(s, R, C); printf("\n");
-    }
+      char* s = (char*) &i;
+      if (is_mstd2d(s, R, C, (char*)scratch, (char*)(scratch+2))) {
+	printf("**seed: %lld\n\n\n", i);
+	//print_set2d(s, R, C); printf("\n");
+      }
 
+    }
   }
   return 0;
 }
