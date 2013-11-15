@@ -149,22 +149,21 @@ void check(long long x, int R, int C) {
   printf(" %d\n\n\n\n", bitset_count(diff, 4*N));
 }
 
-int main(int argc, char** argv) {
-  if (argc < 3) {
-    printf("need R and C on the command line.\n");
-    return 1;
-  }
-  int R = atoi(argv[1]);
-  int C = atoi(argv[2]);
+void parallel_exhaustive_search(int R, int C) {
   int N = R * C;
-  if (N > 63) {
-    printf("N must be no more than 63. (got %d)\n", N);
-    return 1;
-}
   long long max = 1LL << N;
 #pragma omp parallel
   {
     int tid = omp_get_thread_num();
+    #pragma omp single
+    {
+      printf("running on %d threads\n", omp_get_num_threads());
+    }
+
+    #pragma omp critical
+    {
+      printf("tid %d starting up.\n", tid);
+    }
 
     long long scratch[8];
     char* sum = (char*)scratch;
@@ -189,7 +188,86 @@ int main(int argc, char** argv) {
 	}
       }
     }
+
+#pragma omp critical
+    {
+      printf("tid %d done.\n", tid);
+    }
   }
+}
+
+void do_stack(int R, int C, int N, long long s, char* p_sum, char* p_diff, int i) {
+  if (i >= N) {
+    if (bitset_count(p_sum, 4*N) > bitset_count(p_diff, 4*N)) {
+      printf("do_stack: N=%d, i=%d, s=%lld\n", N, i, s);
+      print_set2d((char*)&s, R, C);
+      printf(" %d\n", bitset_count((char*)&s, N));
+      print_set2d(p_sum, 2*R, 2*C);
+      printf(" %d\n", bitset_count(p_sum, 4*N));
+      print_set2d(p_diff, 2*R, 2*C);
+      printf(" %d\n", bitset_count(p_diff, 4*N));
+      printf("**seed: %lld\n\n", s);
+    }
+  } else {
+    long long scratch[8];
+    memcpy(scratch, p_sum, 4 * sizeof(long long));
+    memcpy(scratch + 4, p_diff, 4 * sizeof(long long));
+    char* sum = (char*)scratch;
+    char* diff = (char*)(scratch + 4);
+    do_stack(R, C, N, s, sum, diff, i+1);
+
+    int ir = i / C;
+    int ic = i % C;
+
+    s |= (1LL << i);
+
+    int j;
+    for (j = 0; j < N; j++) {
+      if (!bitset_get((char*)&s, j, N)) continue;
+      int jr = j / C;
+      int jc = j % C;
+
+      int sr = ir + jr;
+      int sc = ic + jc;
+      int dr1 = ir - jr + R;
+      int dc1 = ic - jc + C;
+      int dr2 = jr - ir + R;
+      int dc2 = jc - ic + C;
+      
+      bitset_set(sum, sr * 2 * C + sc, 4*N);
+      bitset_set(diff, dr1 * 2 * C + dc1, 4*N);
+      bitset_set(diff, dr2 * 2 * C + dc2, 4*N);
+    }
+
+    do_stack(R, C, N, s, sum, diff, i+1);
+    
+  }    
+}
+
+void stack_search(int R, int C) {
+  int N = R * C;
+
+  long long scratch[8];
+  memset(scratch, 0, 8 * sizeof(long long));
+
+  do_stack(R, C, N, 0, (char*)scratch, (char*)(scratch + 4), 0);
+  
+}
+
+int main(int argc, char** argv) {
+  if (argc < 3) {
+    printf("need R and C on the command line.\n");
+    return 1;
+  }
+  int R = atoi(argv[1]);
+  int C = atoi(argv[2]);
+  if (R * C > 63) {
+    printf("R * C must be no more than 63. (got %d)\n",  R * C);
+    return 1;
+  }
+
+  parallel_exhaustive_search(R, C);
+  //stack_search(R, C);
 
   return 0;
 }
