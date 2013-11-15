@@ -251,8 +251,33 @@ void stack_search(int R, int C) {
   memset(scratch, 0, 8 * sizeof(long long));
 
   do_stack(R, C, N, 0, (char*)scratch, (char*)(scratch + 4), 0);
-  
 }
+
+void parallel_stack_search(int R, int C) {
+  int N = R * C;
+
+#pragma omp parallel
+  {
+    long long scratch[8];
+    char* sum = (char*)scratch;
+    char* diff = (char*)(scratch+4); 
+
+    long long max = 1LL << (N/3);
+#pragma omp single
+    printf("using mask of size %d\n", N/3);
+    long long i;
+#pragma omp for schedule(guided)
+    for (i = 0; i < max; i++) {
+      memset(scratch, 0, 8 * sizeof(long long));
+
+      // compute the sum and difference sets as a side effect.
+      is_mstd2d((char*)&i, R, C, (char*)scratch, (char*)(scratch+4));
+
+      do_stack(R, C, N, i, sum, diff, N/3);
+    }
+  }
+}
+
 
 int main(int argc, char** argv) {
   if (argc < 3) {
@@ -266,8 +291,9 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  parallel_exhaustive_search(R, C);
+  //parallel_exhaustive_search(R, C);
   //stack_search(R, C);
+  parallel_stack_search(R, C);
 
   return 0;
 }
