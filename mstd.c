@@ -196,17 +196,20 @@ void parallel_exhaustive_search(int R, int C) {
   }
 }
 
-void do_stack(int R, int C, int N, long long s, char* p_sum, char* p_diff, int i) {
+void do_stack(int tid, int R, int C, int N, long long s, char* p_sum, char* p_diff, int i) {
   if (i >= N) {
     if (bitset_count(p_sum, 4*N) > bitset_count(p_diff, 4*N)) {
-      printf("do_stack: N=%d, i=%d, s=%lld\n", N, i, s);
-      print_set2d((char*)&s, R, C);
-      printf(" %d\n", bitset_count((char*)&s, N));
-      print_set2d(p_sum, 2*R, 2*C);
-      printf(" %d\n", bitset_count(p_sum, 4*N));
-      print_set2d(p_diff, 2*R, 2*C);
-      printf(" %d\n", bitset_count(p_diff, 4*N));
-      printf("**seed: %lld\n\n", s);
+#pragma omp critical
+      {
+	printf("do_stack: N=%d, i=%d, s=%lld\n", N, i, s);
+	print_set2d((char*)&s, R, C);
+	printf(" %d\n", bitset_count((char*)&s, N));
+	print_set2d(p_sum, 2*R, 2*C);
+	printf(" %d\n", bitset_count(p_sum, 4*N));
+	print_set2d(p_diff, 2*R, 2*C);
+	printf(" %d\n", bitset_count(p_diff, 4*N));
+	printf("**tid %d, seed: %lld\n\n", tid, s);
+      }
     }
   } else {
     long long scratch[8];
@@ -214,7 +217,7 @@ void do_stack(int R, int C, int N, long long s, char* p_sum, char* p_diff, int i
     memcpy(scratch + 4, p_diff, 4 * sizeof(long long));
     char* sum = (char*)scratch;
     char* diff = (char*)(scratch + 4);
-    do_stack(R, C, N, s, sum, diff, i+1);
+    do_stack(tid, R, C, N, s, sum, diff, i+1);
 
     int ir = i / C;
     int ic = i % C;
@@ -239,7 +242,7 @@ void do_stack(int R, int C, int N, long long s, char* p_sum, char* p_diff, int i
       bitset_set(diff, dr2 * 2 * C + dc2, 4*N);
     }
 
-    do_stack(R, C, N, s, sum, diff, i+1);
+    do_stack(tid, R, C, N, s, sum, diff, i+1);
     
   }    
 }
@@ -250,7 +253,7 @@ void stack_search(int R, int C) {
   long long scratch[8];
   memset(scratch, 0, 8 * sizeof(long long));
 
-  do_stack(R, C, N, 0, (char*)scratch, (char*)(scratch + 4), 0);
+  do_stack(0, R, C, N, 0, (char*)scratch, (char*)(scratch + 4), 0);
 }
 
 void parallel_stack_search(int R, int C) {
@@ -258,6 +261,7 @@ void parallel_stack_search(int R, int C) {
 
 #pragma omp parallel
   {
+    int tid = omp_get_thread_num();
     long long scratch[8];
     char* sum = (char*)scratch;
     char* diff = (char*)(scratch+4); 
@@ -273,7 +277,7 @@ void parallel_stack_search(int R, int C) {
       // compute the sum and difference sets as a side effect.
       is_mstd2d((char*)&i, R, C, (char*)scratch, (char*)(scratch+4));
 
-      do_stack(R, C, N, i, sum, diff, N/3);
+      do_stack(tid, R, C, N, i, sum, diff, N/3);
     }
   }
 }
