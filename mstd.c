@@ -262,6 +262,9 @@ void parallel_stack_search(int R, int C) {
 #pragma omp parallel
   {
     int tid = omp_get_thread_num();
+#pragma omp critical
+    printf("tid %d starting up.\n", tid);
+
     long long scratch[8];
     char* sum = (char*)scratch;
     char* diff = (char*)(scratch+4); 
@@ -270,15 +273,21 @@ void parallel_stack_search(int R, int C) {
 #pragma omp single
     printf("using mask of size %d\n", N/3);
     long long i;
-#pragma omp for schedule(guided)
+#pragma omp for schedule(guided), nowait
     for (i = 0; i < max; i++) {
+#pragma omp critical
+      printf("tid %d beginning mask %lld\n", tid, i);
       memset(scratch, 0, 8 * sizeof(long long));
 
       // compute the sum and difference sets as a side effect.
       is_mstd2d((char*)&i, R, C, (char*)scratch, (char*)(scratch+4));
 
       do_stack(tid, R, C, N, i, sum, diff, N/3);
+#pragma omp critical      
+      printf("tid %d ending mask %lld\n", tid, i);
     }
+#pragma omp critical
+    printf("tid %d done.\n", tid);
   }
 }
 
