@@ -234,24 +234,25 @@ void parallel_exhaustive_search2d(int R, int C) {
 long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_diff, int i) {
   char* t = (char*)&s;
   if (i >= N) {
+    return bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N);
     //printf("do_stack1d: N=%d, i=%d, s=%lld, r=%lld\n", N, i, s, r);
-    if (bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N)) {
-      // #pragma omp critical
-      // {
-      // 	// print_set(t, N);
-      // 	// printf(" %d\n", bitset_count(t, N));
-      // 	// print_set((char*)&r, N);
-      // 	// printf(" %d\n", bitset_count((char*)&r, N));
-      // 	// print_set(p_sum, 2*N);
-      // 	// printf(" %d\n", bitset_count(p_sum, 2*N));
-      // 	// print_set(p_diff, 2*N);
-      // 	// printf(" %d\n", bitset_count(p_diff, 2*N));
-      // 
-      // 	//printf("seed:%lld\n", s);
-      // }
-      return 1;
-    }
-    return 0;
+    // if (bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N)) {
+    //   // #pragma omp critical
+    //   // {
+    //   // 	// print_set(t, N);
+    //   // 	// printf(" %d\n", bitset_count(t, N));
+    //   // 	// print_set((char*)&r, N);
+    //   // 	// printf(" %d\n", bitset_count((char*)&r, N));
+    //   // 	// print_set(p_sum, 2*N);
+    //   // 	// printf(" %d\n", bitset_count(p_sum, 2*N));
+    //   // 	// print_set(p_diff, 2*N);
+    //   // 	// printf(" %d\n", bitset_count(p_diff, 2*N));
+    //   // 
+    //   // 	//printf("seed:%lld\n", s);
+    //   // }
+    //   return 1;
+    // }
+    // return 0;
   } else {
     long long scratch[4];
     char *sum = (char*) scratch;
