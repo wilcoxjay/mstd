@@ -231,25 +231,27 @@ void parallel_exhaustive_search2d(int R, int C) {
   }
 }
 
-void do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_diff, int i) {
+long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_diff, int i) {
   char* t = (char*)&s;
   if (i >= N) {
     //printf("do_stack1d: N=%d, i=%d, s=%lld, r=%lld\n", N, i, s, r);
     if (bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N)) {
-#pragma omp critical
-      {
-	// print_set(t, N);
-	// printf(" %d\n", bitset_count(t, N));
-	// print_set((char*)&r, N);
-	// printf(" %d\n", bitset_count((char*)&r, N));
-	// print_set(p_sum, 2*N);
-	// printf(" %d\n", bitset_count(p_sum, 2*N));
-	// print_set(p_diff, 2*N);
-	// printf(" %d\n", bitset_count(p_diff, 2*N));
-
-	printf("seed:%lld\n", s);
-      }
+      // #pragma omp critical
+      // {
+      // 	// print_set(t, N);
+      // 	// printf(" %d\n", bitset_count(t, N));
+      // 	// print_set((char*)&r, N);
+      // 	// printf(" %d\n", bitset_count((char*)&r, N));
+      // 	// print_set(p_sum, 2*N);
+      // 	// printf(" %d\n", bitset_count(p_sum, 2*N));
+      // 	// print_set(p_diff, 2*N);
+      // 	// printf(" %d\n", bitset_count(p_diff, 2*N));
+      // 
+      // 	//printf("seed:%lld\n", s);
+      // }
+      return 1;
     }
+    return 0;
   } else {
     long long scratch[4];
     char *sum = (char*) scratch;
@@ -257,8 +259,9 @@ void do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_d
     memcpy(sum, p_sum, 2*sizeof(long long));
     memcpy(diff, p_diff, 2*sizeof(long long));
 
+    long long result = 0;
     if (i < N - 1) {
-      do_stack1d(tid, N, s, r, sum, diff, i+1);
+      result = do_stack1d(tid, N, s, r, sum, diff, i+1);
     }
 
     s |= 1LL << i;
@@ -294,7 +297,8 @@ void do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_d
     // }
     ////
 
-    do_stack1d(tid, N, s, r, sum, diff, i+1);
+    result += do_stack1d(tid, N, s, r, sum, diff, i+1);
+    return result;
   }
 }
 
@@ -316,9 +320,13 @@ long long flip_about(int N, long long x) {
 
 void parallel_stack_search1d(int N) {
 
+  long long global_result = 0;
+
 #pragma omp parallel
   {
     int tid = omp_get_thread_num();
+
+    long long result = 0;
 
     long long scratch[4];
 
@@ -338,14 +346,19 @@ void parallel_stack_search1d(int N) {
 
       is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
 
-      do_stack1d(tid, N, i, flip_about(N, i), (char*)scratch, (char*)(scratch + 2), N/3);
+      result += do_stack1d(tid, N, i, flip_about(N, i), (char*)scratch, (char*)(scratch + 2), N/3);
 
       //#pragma omp critical
       //printf("tid %d ending mask %lld\n", tid, i);
     }
 #pragma omp critical
-    printf("tid %d done.\n", tid);
+    {
+      printf("tid %d done. found %lld MSTD sets.\n", tid, result);
+      global_result += result;
+    }
   }
+
+  printf("total: %lld\n", global_result);
 }
 
 void do_stack2d(int tid, int R, int C, int N, long long s, char* p_sum, char* p_diff, int i) {
