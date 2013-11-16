@@ -338,11 +338,18 @@ void parallel_stack_search1d(int N) {
 #pragma omp single
     printf("using mask of size %d\n", N/3);
 
+    long long mod = max / 1000;
+    if (mod == 0) {
+      mod = 1;
+    }
+
     long long i;
 #pragma omp for schedule(guided), nowait
     for (i = 1; i < max; i += 2) {
-      //#pragma omp critical
-      //printf("tid %d beginning mask %lld\n", tid, i);
+      if ((i/2) % (max / 100) == 0) {
+#pragma omp critical
+	printf("tid %d beginning mask %lld\n", tid, i);
+      }
       memset(scratch, 0, 4 * sizeof(long long));
 
       is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
