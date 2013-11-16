@@ -238,16 +238,16 @@ void do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_d
     if (bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N)) {
 #pragma omp critical
       {
-	print_set(t, N);
-	printf(" %d\n", bitset_count(t, N));
-	print_set((char*)&r, N);
-	printf(" %d\n", bitset_count((char*)&r, N));
-	print_set(p_sum, 2*N);
-	printf(" %d\n", bitset_count(p_sum, 2*N));
-	print_set(p_diff, 2*N);
-	printf(" %d\n", bitset_count(p_diff, 2*N));
+	// print_set(t, N);
+	// printf(" %d\n", bitset_count(t, N));
+	// print_set((char*)&r, N);
+	// printf(" %d\n", bitset_count((char*)&r, N));
+	// print_set(p_sum, 2*N);
+	// printf(" %d\n", bitset_count(p_sum, 2*N));
+	// print_set(p_diff, 2*N);
+	// printf(" %d\n", bitset_count(p_diff, 2*N));
 
-	printf("**tid %d, seed: %lld\n\n", tid, s);
+	printf("seed:%lld\n", s);
       }
     }
   } else {
@@ -332,16 +332,16 @@ void parallel_stack_search1d(int N) {
     long long i;
 #pragma omp for schedule(guided), nowait
     for (i = 1; i < max; i += 2) {
-#pragma omp critical
-      printf("tid %d beginning mask %lld\n", tid, i);
+      //#pragma omp critical
+      //printf("tid %d beginning mask %lld\n", tid, i);
       memset(scratch, 0, 4 * sizeof(long long));
 
       is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
 
       do_stack1d(tid, N, i, flip_about(N, i), (char*)scratch, (char*)(scratch + 2), N/3);
 
-#pragma omp critical
-      printf("tid %d ending mask %lld\n", tid, i);
+      //#pragma omp critical
+      //printf("tid %d ending mask %lld\n", tid, i);
     }
 #pragma omp critical
     printf("tid %d done.\n", tid);
