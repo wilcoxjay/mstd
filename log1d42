@@ -1,0 +1,121 @@
+tid 18 starting up.
+tid 3 starting up.
+tid 4 starting up.
+tid 1 starting up.
+using mask of size 14
+tid 0 starting up.
+tid 20 starting up.
+tid 2 starting up.
+tid 5 starting up.
+tid 7 starting up.
+tid 8 starting up.
+tid 6 starting up.
+tid 30 starting up.
+tid 31 starting up.
+tid 9 starting up.
+tid 29 starting up.
+tid 19 starting up.
+tid 10 starting up.
+tid 11 starting up.
+tid 17 starting up.
+tid 12 starting up.
+tid 28 starting up.
+tid 27 starting up.
+tid 14 starting up.
+tid 13 starting up.
+tid 16 starting up.
+tid 21 starting up.
+tid 26 starting up.
+tid 15 starting up.
+tid 23 starting up.
+tid 25 starting up.
+tid 24 starting up.
+tid 22 starting up.
+tid 24 beginning mask 1
+tid 8 beginning mask 1957
+tid 31 beginning mask 6847
+tid 28 beginning mask 9455
+tid 6 beginning mask 5217
+tid 16 beginning mask 10107
+tid 15 beginning mask 7173
+tid 27 beginning mask 8803
+tid 19 beginning mask 4891
+tid 9 beginning mask 7499
+tid 1 beginning mask 2935
+tid 29 beginning mask 4565
+tid 7 beginning mask 7825
+tid 14 beginning mask 9781
+tid 11 beginning mask 9129
+tid 3 beginning mask 1631
+tid 25 beginning mask 653
+tid 13 beginning mask 10433
+tid 4 beginning mask 4239
+tid 12 beginning mask 8151
+tid 5 beginning mask 2609
+tid 26 beginning mask 8477
+tid 20 beginning mask 3913
+tid 14 beginning mask 11085
+tid 17 beginning mask 11411
+tid 18 beginning mask 1305
+tid 21 beginning mask 10759
+tid 10 beginning mask 6195
+tid 22 beginning mask 6521
+tid 9 beginning mask 12389
+tid 27 beginning mask 11737
+tid 2 beginning mask 3587
+tid 30 beginning mask 5869
+tid 8 beginning mask 2283
+tid 24 beginning mask 327
+tid 6 beginning mask 5543
+tid 26 beginning mask 12063
+tid 14 beginning mask 13367
+tid 1 beginning mask 3261
+tid 7 beginning mask 14345
+tid 10 beginning mask 13041
+tid 0 beginning mask 12715
+tid 17 beginning mask 14019
+tid 16 beginning mask 13693
+tid 15 beginning mask 14671
+tid 8 beginning mask 14997
+tid 25 beginning mask 979
+tid 12 beginning mask 15323
+tid 16 beginning mask 15649
+tid 14 beginning mask 15975
+tid 14 beginning mask 16301
+tid 12 done. found 6244743 MSTD sets.
+tid 21 done. found 13918114 MSTD sets.
+tid 5 done. found 17364046 MSTD sets.
+tid 7 done. found 14330932 MSTD sets.
+tid 28 done. found 13553334 MSTD sets.
+tid 17 done. found 19046188 MSTD sets.
+tid 0 done. found 20383645 MSTD sets.
+tid 15 done. found 15285848 MSTD sets.
+tid 19 done. found 10133086 MSTD sets.
+tid 26 done. found 18902752 MSTD sets.
+tid 31 done. found 9248310 MSTD sets.
+tid 16 done. found 13179395 MSTD sets.
+tid 8 done. found 17187498 MSTD sets.
+tid 27 done. found 19407219 MSTD sets.
+tid 30 done. found 13745487 MSTD sets.
+tid 18 done. found 17104184 MSTD sets.
+tid 1 done. found 19976035 MSTD sets.
+tid 23 done. found 22836490 MSTD sets.
+tid 20 done. found 9714465 MSTD sets.
+tid 6 done. found 15597739 MSTD sets.
+tid 13 done. found 22085749 MSTD sets.
+tid 9 done. found 21436863 MSTD sets.
+tid 14 done. found 17285771 MSTD sets.
+tid 3 done. found 16575963 MSTD sets.
+tid 25 done. found 16002435 MSTD sets.
+tid 4 done. found 14813954 MSTD sets.
+tid 10 done. found 14915613 MSTD sets.
+tid 29 done. found 19774028 MSTD sets.
+tid 2 done. found 16366332 MSTD sets.
+tid 22 done. found 21956116 MSTD sets.
+tid 11 done. found 9222369 MSTD sets.
+tid 24 done. found 13056171 MSTD sets.
+total: 510650874
+
+real	360m29.518s
+user	11412m56.237s
+sys	0m0.949s
