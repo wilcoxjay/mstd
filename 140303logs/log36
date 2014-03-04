@@ -1,0 +1,70 @@
+tid 1 starting up.
+tid 17 starting up.
+tid 3 starting up.
+tid 19 starting up.
+tid 0 starting up.
+using mask of size 12
+tid 4 starting up.
+tid 12 starting up.
+tid 22 starting up.
+tid 15 starting up.
+tid 5 starting up.
+tid 7 starting up.
+tid 23 starting up.
+tid 18 starting up.
+tid 20 starting up.
+tid 29 starting up.
+tid 31 starting up.
+tid 13 starting up.
+tid 8 starting up.
+tid 2 starting up.
+tid 21 starting up.
+tid 24 starting up.
+tid 16 starting up.
+tid 10 starting up.
+tid 9 starting up.
+tid 25 starting up.
+tid 14 starting up.
+tid 30 starting up.
+tid 26 starting up.
+tid 11 starting up.
+tid 27 starting up.
+tid 28 starting up.
+tid 6 starting up.
+tid 15 done. found 260049 MSTD sets.
+tid 13 done. found 14024 MSTD sets.
+tid 29 done. found 243111 MSTD sets.
+tid 9 done. found 250188 MSTD sets.
+tid 0 done. found 209853 MSTD sets.
+tid 2 done. found 363034 MSTD sets.
+tid 22 done. found 320399 MSTD sets.
+tid 31 done. found 308216 MSTD sets.
+tid 7 done. found 168354 MSTD sets.
+tid 24 done. found 202805 MSTD sets.
+tid 12 done. found 201804 MSTD sets.
+tid 21 done. found 204170 MSTD sets.
+tid 5 done. found 271153 MSTD sets.
+tid 6 done. found 203208 MSTD sets.
+tid 14 done. found 234639 MSTD sets.
+tid 16 done. found 82830 MSTD sets.
+tid 18 done. found 445028 MSTD sets.
+tid 3 done. found 407030 MSTD sets.
+tid 28 done. found 324210 MSTD sets.
+tid 27 done. found 413808 MSTD sets.
+tid 23 done. found 255191 MSTD sets.
+tid 19 done. found 74873 MSTD sets.
+tid 17 done. found 256130 MSTD sets.
+tid 26 done. found 207994 MSTD sets.
+tid 8 done. found 125236 MSTD sets.
+tid 20 done. found 106521 MSTD sets.
+tid 1 done. found 159979 MSTD sets.
+tid 11 done. found 502665 MSTD sets.
+tid 25 done. found 279586 MSTD sets.
+tid 10 done. found 270459 MSTD sets.
+tid 4 done. found 313680 MSTD sets.
+tid 30 done. found 253141 MSTD sets.
+total: 7933368
+
+real	0m20.815s
+user	10m59.861s
+sys	0m0.024s
