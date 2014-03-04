@@ -231,26 +231,41 @@ void parallel_exhaustive_search2d(int R, int C) {
   }
 }
 
+long long longset_count(long long s) {
+  long long result;
+  asm("popcnt %1, %0"
+      : "=r" (result)
+      : "r" (s)
+      );
+  return result;
+}
+
 long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_diff, int i) {
   char* t = (char*)&s;
   if (i >= N) {
-    return bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N);
+    long long* scratch = p_sum;
+    return
+      (longset_count(scratch[0]) + longset_count(scratch[1])) >
+      (longset_count(scratch[2]) + longset_count(scratch[3]));
+
+    //return bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N);
+
     //printf("do_stack1d: N=%d, i=%d, s=%lld, r=%lld\n", N, i, s, r);
     // if (bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N)) {
-    //   // #pragma omp critical
+    //   //#pragma omp critical
     //   // {
-    //   // 	// print_set(t, N);
-    //   // 	// printf(" %d\n", bitset_count(t, N));
-    //   // 	// print_set((char*)&r, N);
-    //   // 	// printf(" %d\n", bitset_count((char*)&r, N));
-    //   // 	// print_set(p_sum, 2*N);
-    //   // 	// printf(" %d\n", bitset_count(p_sum, 2*N));
-    //   // 	// print_set(p_diff, 2*N);
-    //   // 	// printf(" %d\n", bitset_count(p_diff, 2*N));
+    //   // 	 print_set(t, N);
+    //   // 	 printf(" %d\n", bitset_count(t, N));
+    //   // 	 print_set((char*)&r, N);
+    //   // 	 printf(" %d\n", bitset_count((char*)&r, N));
+    //   // 	 print_set(p_sum, 2*N);
+    //   // 	 printf(" %d\n", bitset_count(p_sum, 2*N));
+    //   // 	 print_set(p_diff, 2*N);
+    //   // 	 printf(" %d\n", bitset_count(p_diff, 2*N));
     //   // 
-    //   // 	//printf("seed:%lld\n", s);
+    //   // 	printf("seed:%lld\n", s);
     //   // }
-    //   return 1;
+    //   // return 1;
     // }
     // return 0;
   } else {
@@ -262,8 +277,12 @@ long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char
 
     long long result = 0;
     if (i < N - 1) {
+      // we require the last element to be in the set, cf. ".... += 2"
+      // (requiring first element to be in set) in for loop in
+      // parallel_stack_search1d
       result = do_stack1d(tid, N, s, r, sum, diff, i+1);
     }
+
 
     s |= 1LL << i;
     ////
@@ -303,13 +322,6 @@ long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char
   }
 }
 
-void stack_search1d(int N) {
-  long long scratch[4];
-  memset(scratch, 0, 4 * sizeof(long long));
-
-  do_stack1d(0, N, 0, 0, (char*)scratch, (char*)(scratch + 2), 0);
-}
-
 long long flip_about(int N, long long x) {
   long long result = 0;
   int i;
@@ -318,6 +330,19 @@ long long flip_about(int N, long long x) {
   }
   return result;
 }
+
+
+void stack_search1d(int N) {
+  long long scratch[4];
+  memset(scratch, 0, 4 * sizeof(long long));
+
+  // complicated by fact that we require first element to be in set...
+  long long result = do_stack1d(0, N, 1, flip_about(N, 1), (char*)scratch, (char*)(scratch + 2), 1);
+
+  printf("%lld\n", result);
+}
+
+
 
 void parallel_stack_search1d(int N) {
 
@@ -346,10 +371,13 @@ void parallel_stack_search1d(int N) {
     long long i;
 #pragma omp for schedule(guided), nowait
     for (i = 1; i < max; i += 2) {
-      if ((i/2) % (max / 100) == 0) {
-#pragma omp critical
-	printf("tid %d beginning mask %lld\n", tid, i);
-      }
+      // += 2 because we require the 0th bit to be set, ie, we require the first element to be in the set.
+
+
+      // if ((i/2) % (max / 100) == 0) {
+      // 	//#pragma omp critical
+      // 	printf("tid %d beginning mask %lld\n", tid, i);
+      // }
       memset(scratch, 0, 4 * sizeof(long long));
 
       is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
