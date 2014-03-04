@@ -1,0 +1,70 @@
+tid 0 starting up.
+tid 16 starting up.
+tid 26 starting up.
+tid 2 starting up.
+tid 7 starting up.
+tid 23 starting up.
+using mask of size 15
+tid 13 starting up.
+tid 24 starting up.
+tid 1 starting up.
+tid 17 starting up.
+tid 25 starting up.
+tid 18 starting up.
+tid 28 starting up.
+tid 12 starting up.
+tid 27 starting up.
+tid 15 starting up.
+tid 8 starting up.
+tid 5 starting up.
+tid 31 starting up.
+tid 11 starting up.
+tid 29 starting up.
+tid 21 starting up.
+tid 20 starting up.
+tid 9 starting up.
+tid 3 starting up.
+tid 22 starting up.
+tid 6 starting up.
+tid 14 starting up.
+tid 10 starting up.
+tid 30 starting up.
+tid 19 starting up.
+tid 4 starting up.
+tid 23 done. found 126172064 MSTD sets.
+tid 16 done. found 117326899 MSTD sets.
+tid 8 done. found 124863450 MSTD sets.
+tid 15 done. found 79352766 MSTD sets.
+tid 19 done. found 149849434 MSTD sets.
+tid 10 done. found 137788900 MSTD sets.
+tid 7 done. found 137543994 MSTD sets.
+tid 4 done. found 118997573 MSTD sets.
+tid 12 done. found 116141508 MSTD sets.
+tid 18 done. found 105761632 MSTD sets.
+tid 9 done. found 120574063 MSTD sets.
+tid 24 done. found 129655765 MSTD sets.
+tid 14 done. found 88844142 MSTD sets.
+tid 20 done. found 149457522 MSTD sets.
+tid 2 done. found 125824642 MSTD sets.
+tid 31 done. found 146654694 MSTD sets.
+tid 11 done. found 94671334 MSTD sets.
+tid 6 done. found 112502788 MSTD sets.
+tid 25 done. found 157733126 MSTD sets.
+tid 29 done. found 108116423 MSTD sets.
+tid 5 done. found 168304929 MSTD sets.
+tid 30 done. found 150408337 MSTD sets.
+tid 17 done. found 124434669 MSTD sets.
+tid 26 done. found 121655360 MSTD sets.
+tid 28 done. found 137751795 MSTD sets.
+tid 0 done. found 142639155 MSTD sets.
+tid 21 done. found 155648872 MSTD sets.
+tid 13 done. found 112663044 MSTD sets.
+tid 27 done. found 116433737 MSTD sets.
+tid 22 done. found 141088343 MSTD sets.
+tid 1 done. found 124489249 MSTD sets.
+tid 3 done. found 144496891 MSTD sets.
+total: 4087847100
+
+real	176m18.093s
+user	5635m58.110s
+sys	0m0.468s
