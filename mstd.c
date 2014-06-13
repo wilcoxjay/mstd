@@ -71,6 +71,19 @@ int is_mstd1d(char* s, int N, char* sum, char* diff) {
   return result;
 }
 
+void init_sumdiff(char* s, int N, char* sum, char* diff) {
+  int i, j;
+  for (i = 0; i < N; i++) {
+    if (!bitset_get(s, i, N)) continue;
+    for (j = i; j < N; j++) {
+      if (!bitset_get(s, j, N)) continue;
+      bitset_set(sum, i+j, 2*N);
+      int d = i - j;
+      bitset_set(diff, d + N, 2*N);
+    }
+  }
+}
+
 void print_set2d(char* s, int rows, int cols) {
   int N = rows * cols;
   int started = 0;
@@ -240,13 +253,13 @@ long long longset_count(long long s) {
   return result;
 }
 
-long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char* p_diff, int i) {
+long long do_stack1d(int tid, int N, long long s, char* p_sum, char* p_diff, int i) {
   char* t = (char*)&s;
   if (i >= N) {
     long long* scratch = p_sum;
     return
-      (longset_count(scratch[0]) + longset_count(scratch[1])) >
-      (longset_count(scratch[2]) + longset_count(scratch[3]));
+      ((longset_count(scratch[0]) + longset_count(scratch[1])) >
+       2 * longset_count(scratch[2]) - 1);
 
     //return bitset_count(p_sum, 2*N) > bitset_count(p_diff, 2*N);
 
@@ -269,39 +282,31 @@ long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char
     // }
     // return 0;
   } else {
-    long long scratch[4];
+    long long scratch[3];
     char *sum = (char*) scratch;
     char *diff = (char*) (scratch + 2);
     memcpy(sum, p_sum, 2*sizeof(long long));
-    memcpy(diff, p_diff, 2*sizeof(long long));
+    memcpy(diff, p_diff, sizeof(long long));
 
     long long result = 0;
     if (i < N - 1) {
       // we require the last element to be in the set, cf. ".... += 2"
       // (requiring first element to be in set) in for loop in
       // parallel_stack_search1d
-      result = do_stack1d(tid, N, s, r, sum, diff, i+1);
+      result = do_stack1d(tid, N, s, sum, diff, i+1);
     }
 
 
     s |= 1LL << i;
-    ////
-    r |= 1LL << (N - i - 1);
 
     scratch[0] |= s << i;
     if (i > 0) {
       scratch[1] |= s >> (64 - i);
     }
 
-    scratch[2] |= s << (N - i - 1);
-    if (N - i - 1 > 0) {
-      scratch[3] |= s >> (64 - N + i + 1);
-    }
+    scratch[2] |= (s << (N - i));
 
-    scratch[2] |= r << i;
-    if (i > 0) {
-      scratch[3] |= r >> (64 - i);
-    }
+
     //// the following is the straightforward version of the above:
     // int j;
     // for (j = 0; j < N; j++) {
@@ -317,7 +322,7 @@ long long do_stack1d(int tid, int N, long long s, long long r, char* p_sum, char
     // }
     ////
 
-    result += do_stack1d(tid, N, s, r, sum, diff, i+1);
+    result += do_stack1d(tid, N, s, sum, diff, i+1);
     return result;
   }
 }
@@ -336,8 +341,11 @@ void stack_search1d(int N) {
   long long scratch[4];
   memset(scratch, 0, 4 * sizeof(long long));
 
+  scratch[0] = 1;
+  scratch[2] = 1LL << N;
+
   // complicated by fact that we require first element to be in set...
-  long long result = do_stack1d(0, N, 1, flip_about(N, 1), (char*)scratch, (char*)(scratch + 2), 1);
+  long long result = do_stack1d(0, N, 1, (char*)scratch, (char*)(scratch + 2), 1);
 
   printf("%lld\n", result);
 }
@@ -380,9 +388,10 @@ void parallel_stack_search1d(int N) {
       // }
       memset(scratch, 0, 4 * sizeof(long long));
 
-      is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
+      //is_mstd1d((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
+      init_sumdiff((char*)&i, N, (char*)scratch, (char*)(scratch + 2));
 
-      result += do_stack1d(tid, N, i, flip_about(N, i), (char*)scratch, (char*)(scratch + 2), N/3);
+      result += do_stack1d(tid, N, i, (char*)scratch, (char*)(scratch + 2), N/3);
 
       //#pragma omp critical
       //printf("tid %d ending mask %lld\n", tid, i);
