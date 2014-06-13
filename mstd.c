@@ -513,10 +513,15 @@ void oned(int argc, char** argv) {
     exit(1);
   }
 
-  //parallel_exhaustive_search1d(N);
-  //stack_search1d(N);
+#if defined(MSTD_1D_SEQ)
+  stack_search1d(N);
+#elif defined(MSTD_1D_PAR_NAIVE)
+  parallel_exhaustive_search1d(N);
+#elif defined(MSTD_1D_PAR_STACK)
   parallel_stack_search1d(N);
-
+#elif defined(MSTD_1D)
+  #error "You must define one of MSTD_1D directives"
+#endif
 }
 
 void twod(int argc, char** argv) {
@@ -531,16 +536,25 @@ void twod(int argc, char** argv) {
     exit(1);
   }
 
-  //parallel_exhaustive_search2d(R, C);
-  //stack_search2d(R, C);
+#if defined(MSTD_2D_SEQ)
+  stack_search2d(R, C);
+#elif defined(MSTD_2D_PAR_NAIVE)
+  parallel_exhaustive_search2d(R, C);
+#elif defined(MSTD_2D_PAR_STACK)
   parallel_stack_search2d(R, C);
-
+#elif defined(MSTD_2D)
+  #error "You must define one of MSTD_2D directives"
+#endif
 }
 
 
 int main(int argc, char** argv) {
-  //twod(argc, argv);
+#if defined(MSTD_1D)
   oned(argc, argv);
-
+#elif defined(MSTD_2D)
+  twod(argc, argv);
+#else
+  #error "You must define MSTD_1D or MSTD_2D"
+#endif
   return 0;
 }
