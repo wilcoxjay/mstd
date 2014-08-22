@@ -242,7 +242,7 @@ void parallel_exhaustive_search1d_restricted(int N) {
     char* diff = (char*)(scratch + 2);
     long long i;
 #pragma omp for schedule(guided), nowait
-    for (i = 0; i < max; i++) {
+    for (i = 1 | (1 << (N-1)); i < max; i += 2) {
       memset(scratch, 0, 4*sizeof(long long));
 
       char* s = (char*)&i;
@@ -340,7 +340,7 @@ long long do_stack1d(int tid, int N, long long s, char* p_sum, char* p_diff, int
     //   // 	 printf(" %d\n", bitset_count(p_sum, 2*N));
     //   // 	 print_set(p_diff, 2*N);
     //   // 	 printf(" %d\n", bitset_count(p_diff, 2*N));
-    //   // 
+    //   //
     //   // 	printf("seed:%lld\n", s);
     //   // }
     //   // return 1;
@@ -616,6 +616,16 @@ void twod(int argc, char** argv) {
 
 
 int main(int argc, char** argv) {
+//   long long scratch[4];
+//   memset(scratch, 0, 4 * sizeof(long long));
+//
+//   long long s = 6210859575LL;
+//
+//   printf("is ");
+//   print_set((char*)&s, 64);
+//   printf(" restricted mstd? %s!\n",
+//          is_restricted_mstd1d((char*)&s, 64, (char*)scratch, (char*)(scratch+2)) ? "yes" : "no");
+
 #if defined(MSTD_1D)
   oned(argc, argv);
 #elif defined(MSTD_2D)
