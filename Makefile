@@ -3,3 +3,6 @@ mstd2d: mstd.c
 
 mstd1d: mstd.c
 	gcc -DMSTD_1D -DMSTD_1D_PAR_STACK -fopenmp -O3 -march=native -mtune=native -Wall -Wextra -o mstd1d mstd.c
+
+mstd1d-restricted: mstd.c
+	gcc -DMSTD_1D -DMSTD_1D_PAR_NAIVE_RESTRICTED -fopenmp -O3 -march=native -mtune=native -Wall -Wextra -o mstd1d-restricted mstd.c

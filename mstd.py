@@ -14,10 +14,22 @@ def decode(s,n):
         if (s >> i) & 1 == 1:
             yield i
 
+def encode(s):
+    ans = 0
+    for x in s:
+        ans |= 1 << x
+    return ans
+
 def sumset(s):
     for x in s:
         for y in s:
             yield x + y
+
+def restricted_sumset(s):
+    for x in s:
+        for y in s:
+            if x != y:
+                yield x + y
 
 def diffset(s):
     for x in s:

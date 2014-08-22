@@ -71,6 +71,34 @@ int is_mstd1d(char* s, int N, char* sum, char* diff) {
   return result;
 }
 
+int is_restricted_mstd1d(char* s, int N, char* sum, char* diff) {
+  int i, j;
+  for (i = 0; i < N; i++) {
+    if (!bitset_get(s, i, N)) continue;
+    for (j = i; j < N; j++) {
+      if (!bitset_get(s, j, N)) continue;
+      if (i != j) bitset_set(sum, i+j, 2*N);
+      int d = i - j;
+      bitset_set(diff, d + N - 1, 2*N);
+      bitset_set(diff, N - d - 1, 2*N);
+    }
+  }
+
+  int result = bitset_count(sum, 2*N) > bitset_count(diff, 2*N);
+
+  // if (result) {
+  //   print_set(s, N);
+  //   printf(" %d\n", bitset_count(s, N));
+  //   print_set(sum, 2*N);
+  //   printf(" %d\n", bitset_count(sum, 2*N));
+  //   print_set(diff, 2*N);
+  //   printf(" %d\n", bitset_count(diff, 2*N));
+  //   printf("\n\n");
+  // }
+
+  return result;
+}
+
 void init_sumdiff(char* s, int N, char* sum, char* diff) {
   int i, j;
   for (i = 0; i < N; i++) {
@@ -197,6 +225,43 @@ void parallel_exhaustive_search1d(int N) {
   }
 }
 
+void parallel_exhaustive_search1d_restricted(int N) {
+  long long max = 1LL << N;
+  printf("executing 1d naive parallel search for restricted MSTD sets\n");
+
+#pragma omp parallel
+  {
+    int tid = omp_get_thread_num();
+    #pragma omp single
+    {
+      printf("running on %d threads\n", omp_get_num_threads());
+    }
+
+    long long scratch[4];
+    char* sum = (char*)scratch;
+    char* diff = (char*)(scratch + 2);
+    long long i;
+#pragma omp for schedule(guided), nowait
+    for (i = 0; i < max; i++) {
+      memset(scratch, 0, 4*sizeof(long long));
+
+      char* s = (char*)&i;
+      if (is_restricted_mstd1d(s, N, sum, diff)) {
+#pragma omp critical
+	{
+	  print_set(s, N);
+	  printf(" %d\n", bitset_count(s, N));
+	  print_set(sum, 2*N);
+	  printf(" %d\n", bitset_count(sum, 2*N));
+	  print_set(diff, 2*N);
+	  printf(" %d\n", bitset_count(diff, 2*N));
+	  printf("tid %d, seed %lld\n\n", tid, i);
+	}
+      }
+    }
+  }
+}
+
 void parallel_exhaustive_search2d(int R, int C) {
   int N = R * C;
   long long max = 1LL << N;
@@ -256,7 +321,7 @@ long long longset_count(long long s) {
 long long do_stack1d(int tid, int N, long long s, char* p_sum, char* p_diff, int i) {
   char* t = (char*)&s;
   if (i >= N) {
-    long long* scratch = p_sum;
+    long long* scratch = (long long *) p_sum;
     return
       ((longset_count(scratch[0]) + longset_count(scratch[1])) >
        2 * longset_count(scratch[2]) - 1);
@@ -517,6 +582,8 @@ void oned(int argc, char** argv) {
   stack_search1d(N);
 #elif defined(MSTD_1D_PAR_NAIVE)
   parallel_exhaustive_search1d(N);
+#elif defined(MSTD_1D_PAR_NAIVE_RESTRICTED)
+  parallel_exhaustive_search1d_restricted(N);
 #elif defined(MSTD_1D_PAR_STACK)
   parallel_stack_search1d(N);
 #elif defined(MSTD_1D)
